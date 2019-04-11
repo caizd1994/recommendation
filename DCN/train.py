@@ -1,7 +1,7 @@
 import os
 import tensorflow as tf
-from FM.model_parms import init_model_args
-from FM.model import RecommendModelHandler
+from DCN.config import init_model_args
+from DCN.model import RecommendModelHandler
 
 
 def main():
@@ -41,6 +41,30 @@ def main():
     task = args.task
     print("task: {}".format(task))
 
+    is_decy = args.is_decy
+    print("is_decy: {}".format(is_decy))
+
+    decay_steps = args.decay_steps
+    print("decay_steps: {}".format(decay_steps))
+
+    decay_rate = args.decay_rate
+    print("decay_rate: {}".format(decay_rate))
+
+    is_bn = args.is_bn
+    print("is_bn: {}".format(is_bn))
+
+    is_dropout = args.is_dropout
+    print("is_dropout: {}".format(is_dropout))
+
+    dropout_rate = args.dropout_rate
+    print("dropout_rate: {}".format(dropout_rate))
+
+    hidden_units = args.hidden_units
+    print("hidden_units: {}".format(hidden_units))
+
+    num_cross_layers = args.num_cross_layers
+    print("num_cross_layers: {}".format(num_cross_layers))
+
     model = RecommendModelHandler(
         train_dataset_path=train_dataset_path_list,
         val_dataset_path=val_dataset_path_list,
@@ -50,7 +74,16 @@ def main():
         optimizer=optimizer,
         embedding_size=embedding_size,
         learning_rate=args.lr,
-        task=task)
+        task=task,
+        is_decy=is_decy,
+        decay_steps=decay_steps,
+        decay_rate=decay_rate,
+        is_bn=is_bn,
+        is_dropout=is_dropout,
+        dropout_rate=dropout_rate,
+        hidden_units=hidden_units,
+        num_cross_layers=num_cross_layers
+    )
 
     model.train()
 

@@ -11,7 +11,9 @@ bucket_size = [73974, 396, 4122689, 850308, 461]
 class RecommendModelHandler(object):
     def __init__(self, train_dataset_path, val_dataset_path, save_model_dir,
                  num_epochs, batch_size, embedding_size, learning_rate,
-                 optimizer, task, num_threads=1):
+                 optimizer, task,is_decy,decay_steps,decay_rate,is_bn,is_dropout,dropout_rate,hidden_units,
+                 num_cross_layers,
+                 num_threads=1):
         self._num_threads = num_threads
         self._num_epochs = num_epochs
         self._batch_size = batch_size
@@ -22,6 +24,15 @@ class RecommendModelHandler(object):
         self._val_dataset_path = val_dataset_path
         self._save_model_dir = save_model_dir
         self._task = task
+        self.is_decy = is_decy
+        self.decay_steps = decay_steps
+        self.decay_rate = decay_rate
+        self.is_bn = is_bn
+        self.is_dropout = is_dropout
+        self.dropout_rate = dropout_rate
+        self.hidden_units = hidden_units
+        self.num_cross_layers = num_cross_layers
+
 
 
     def build_feature(self):
@@ -45,7 +56,15 @@ class RecommendModelHandler(object):
             'learning_rate': self._learning_rate,
             'optimizer': self._optimizer,
             'first_feature_columns': first_feature_columns,
-            'second_feature_columns': second_feature_columns
+            'second_feature_columns': second_feature_columns,
+            'is_decy': self.is_decy,
+            'decay_steps': self.decay_steps,
+            'decay_rate': self.decay_rate,
+            'is_bn': self.is_bn,
+            'is_dropout': self.is_dropout,
+            'dropout_rate': self.dropout_rate,
+            "hidden_units": self.hidden_units,
+            "num_cross_layers":self.num_cross_layers
         }
 
         model = tf.estimator.Estimator(

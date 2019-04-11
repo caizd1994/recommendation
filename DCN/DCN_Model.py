@@ -14,18 +14,20 @@ def cross_layer(input_x,x_l,dim,name):
 def build_cross_layers(x0, params):
     num_layers = params['num_cross_layers']
     x = x0
+    dim = x.get_shape().as_list()[1]
     for i in range(num_layers):
-        x = cross_layer(x0, x, 'cross_{}'.format(i))
+        x = cross_layer(input_x=x0, x_l=x,dim=dim, name='cross_{}'.format(i))
     return x
 
 def build_deep_layers(input_x,parms):
     deep_emb = input_x
     for elem in parms['hidden_units']:
-        deep_emb = tf.layers.dense(input, units=elem, activation=tf.nn.relu)
+        deep_emb = tf.layers.dense(deep_emb, units=elem, activation=tf.nn.relu)
     return deep_emb
 
-@staticmethod
+
 def train_op(features,labels,params):
+    labels = tf.cast(tf.reshape(labels, [-1, 1]), dtype=tf.float32)
     in_put_x = tf.feature_column.input_layer(features=features,feature_columns=params['second_feature_columns'])
     deep_emb = build_deep_layers(in_put_x,params)
     cross_emb = build_cross_layers(in_put_x,params)
@@ -43,7 +45,7 @@ def train_op(features,labels,params):
     sigmoid_loss = tf.reduce_mean(sigmoid_loss)
 
 
-    if params["lr_decy"] == "true":
+    if params["is_decy"] == "true":
         learn_rate = tf.train.exponential_decay(params['learning_rate'],tf.train.get_global_step(),decay_steps=2000,decay_rate=0.9)
     else:
         learn_rate = params['learning_rate']
