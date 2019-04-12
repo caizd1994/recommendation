@@ -43,6 +43,9 @@ def embedding_prepare(features,params):
     elif mode == "out":
         fea_size = len(params['second_feature_columns'])
         num_pairs = int(fea_size * (fea_size - 1) / 2)
+        kernel = None
+        if(params["kernel"] == "mat"):
+            kernel = tf.get_variable("kernel_product",shape=[embed_size,fea_size,embed_size])
         raw_emb = tf.feature_column.input_layer(features=features,feature_columns=params['second_feature_columns']) #B,N*E
         emb = tf.reshape(raw_emb, [-1, fea_size, embed_size]) #B,N,E
         row = []
@@ -62,10 +65,34 @@ def embedding_prepare(features,params):
         p = tf.reshape(p, [-1, num_pairs, embed_size])
         q = tf.reshape(q, [-1, num_pairs, embed_size])
         result = None
+        kp = None
+        if params["kernel"] == "mat":
+            # batch * 1 * pair * k
+            p = tf.expand_dims(p, 1)
+            # batch * pair
+            kp = tf.reduce_sum(
+                # batch * pair * k
+                tf.multiply(
+                    # batch * pair * k
+                    tf.transpose(
+                        # batch * k * pair
+                        tf.reduce_sum(
+                            # batch * k * pair * k
+                            tf.multiply(
+                                p, kernel),
+                            -1),
+                        [0, 2, 1]),
+                    q),
+                -1)
+        else:
+            # 1 * pair * (k or 1)
+            k = tf.expand_dims(kernel, 0)
+            # batch * pair
+            kp = tf.reduce_sum(p * q * k, -1)
+        result = tf.concat([raw_emb, kp], axis=1)
         # inner_product = tf.reduce_sum(p*q,axis=-1)
         # inner_product = tf.reshape(inner_product,shape=[-1,num_pairs])
         # result = tf.concat([raw_emb,inner_product],axis=1)
-
         return result
 
 

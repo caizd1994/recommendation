@@ -63,6 +63,9 @@ def main():
     mode = args.mode
     print("mode: {}".format(mode))
 
+    kernel = args.kernel
+    print("kernel: {}".format(kernel))
+
     model = RecommendModelHandler(
         train_dataset_path=train_dataset_path_list,
         val_dataset_path=val_dataset_path_list,
