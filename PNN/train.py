@@ -83,7 +83,8 @@ def main():
         is_dropout=is_dropout,
         dropout_rate=dropout_rate,
         hidden_units=hidden_units,
-        mode = mode
+        mode = mode,
+        kernel = kernel
     )
 
     model.train()
