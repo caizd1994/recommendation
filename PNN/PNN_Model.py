@@ -10,7 +10,6 @@ def embedding_prepare(features,params):
     if mode == "inner":
         fea_size = len(params['second_feature_columns'])
         num_pairs = int(fea_size * (fea_size - 1) / 2)
-        init_val = []
         raw_emb = tf.feature_column.input_layer(features=features,feature_columns=params['second_feature_columns']) #B,N*E
         emb = tf.reshape(raw_emb, [-1, fea_size, embed_size]) #B,N,E
         row = []
@@ -27,10 +26,12 @@ def embedding_prepare(features,params):
             tf.gather(tf.transpose(emb,[1,0,2]),indices=col),
             [1,0,2]
         )
-        inner_product = tf.reduce_sum(p*q,axis=-1)
+        p = tf.reshape(p, [-1, num_pairs, embed_size])
+        q = tf.reshape(q, [-1, num_pairs, embed_size])
+        inner_product = tf.reduce_sum(p * q,axis=-1)
         inner_product = tf.reshape(inner_product,shape=[-1,num_pairs])
         result = tf.concat([raw_emb,inner_product],axis=1)
-
+        return result
         # batch * n * 1 * k, batch * 1 * n * k
         # ip = tf.reshape(
         #     tf.reduce_sum(
@@ -38,30 +39,35 @@ def embedding_prepare(features,params):
         #         tf.expand_dims(xw3d, 1),
         #         3),
         #     [-1, num_inputs**2])
+
+    elif mode == "out":
+        fea_size = len(params['second_feature_columns'])
+        num_pairs = int(fea_size * (fea_size - 1) / 2)
+        raw_emb = tf.feature_column.input_layer(features=features,feature_columns=params['second_feature_columns']) #B,N*E
+        emb = tf.reshape(raw_emb, [-1, fea_size, embed_size]) #B,N,E
+        row = []
+        col = []
+        for i in range(fea_size):
+            for j in range(i+1,fea_size):
+                row.append(i)
+                col.append(j)
+        p = tf.transpose(
+            tf.gather(tf.transpose(emb,[1,0,2]),indices=row),
+            [1,0,2]
+        )
+        q = tf.transpose(
+            tf.gather(tf.transpose(emb,[1,0,2]),indices=col),
+            [1,0,2]
+        )
+        p = tf.reshape(p, [-1, num_pairs, embed_size])
+        q = tf.reshape(q, [-1, num_pairs, embed_size])
+        result = None
+        # inner_product = tf.reduce_sum(p*q,axis=-1)
+        # inner_product = tf.reshape(inner_product,shape=[-1,num_pairs])
+        # result = tf.concat([raw_emb,inner_product],axis=1)
+
         return result
-    # elif mode == "out":
-    #     fea_size = len(params['second_feature_columns'])
-    #     num_pairs = int(fea_size * (fea_size - 1) / 2)
-    #     init_val = []
-    #     raw_emb = tf.feature_column.input_layer(features=features,feature_columns=params['second_feature_columns']) #B,N*E
-    #     emb = tf.reshape(raw_emb, [-1, fea_size, embed_size]) #B,N,E
-    #     row = []
-    #     col = []
-    #     for i in range(fea_size):
-    #         for j in range(i+1,fea_size):
-    #             row.append(i)
-    #             col.append(j)
-    #     p = tf.transpose(
-    #         tf.gather(tf.transpose(emb,[1,0,2]),indices=row),
-    #         [1,0,2]
-    #     )
-    #     q = tf.transpose(
-    #         tf.gather(tf.transpose(emb,[1,0,2]),indices=col),
-    #         [1,0,2]
-    #     )
-    #     inner_product = tf.reduce_sum(p*q,axis=-1)
-    #     inner_product = tf.reshape(inner_product,shape=[-1,num_pairs])
-    #     result = tf.concat([raw_emb,inner_product],axis=1)
+
 
 def deep_part(deep_net,params):
     units = params['hidden_units']
@@ -82,18 +88,16 @@ def train_op(features,labels,params):
     labels = tf.cast(tf.reshape(labels, [-1, 1]), dtype=tf.float32)
 
     input_emb = embedding_prepare(features,params)
-    print(input_emb)
     deep_logits = deep_part(input_emb, params)
 
     predicts = tf.nn.sigmoid(deep_logits)
-
     loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=deep_logits,labels=labels)
     loss = tf.reduce_mean(loss)
 
     if (params['is_decy'] == "true"):
         learn_rate = tf.train.exponential_decay(params['learning_rate'], tf.train.get_global_step(),
-                                                decay_steps=params['decay_steps'],
-                                                decay_rate=params['decay_rate'])
+                                                decay_steps=params['decay_steps']
+                                                ,decay_rate=params['decay_rate'])
     else:
         learn_rate = params['decay_steps']
 
