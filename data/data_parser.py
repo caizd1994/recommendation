@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-from functools import reduce
 class PosShifts(object):
   """
   Position shifts will be caused by different fields,
@@ -28,7 +27,7 @@ class PosShifts(object):
   @staticmethod
   def shift():
     """ position shifts for different field features """
-    shifts = [73974, 396, 4122689, 850308, 461, 5]
+    shifts = PosShifts._shifts
     shifts = [0] + shifts
 
     sum = 0
@@ -67,21 +66,16 @@ class DataParser(object):
   def data_parser(line, label_index):
     """ parser line content and generate idx, features, and gts """
     content = line.split('\t')
-    print("-" * 50)
-    print(content[:5+1])
-
     label = np.float32(content[label_index].strip())
     feature_num = 5
     features = content[:feature_num+1]
-
-    features = [np.float32(x) for x in features]
-
+    features = map(lambda feature: np.float32(feature), features)
     idx = [0 if feature < 0 else feature  for feature in features]
     features = [np.float32(0) if feature < 0 else np.float32(1) for feature in features]
-
     features = features[:feature_num]
 
     idx = idx[:feature_num]
+
     shifts = PosShifts.shift()
     idx = [idx[i] + shifts[i] for i in range(len(idx))]
 
