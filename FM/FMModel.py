@@ -14,8 +14,7 @@ class FM_model(object):
 
         #second_order
         second_order = tf.feature_column.input_layer(features=features, feature_columns=params['second_feature_columns'])
-        dim = len(params['second_feature_columns'])
-        second_order = tf.reshape(second_order,shape=[-1,dim,params['embedding_size']])
+        second_order = tf.reshape(second_order,shape=[-1,params['fea_size'],params['embedding_size']])
 
         #square-sum
         square_sum = tf.square(second_order)

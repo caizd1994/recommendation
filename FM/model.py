@@ -48,7 +48,8 @@ class RecommendModelHandler(object):
             'optimizer': self._optimizer,
             'first_feature_columns': first_feature_columns,
             'second_feature_columns': second_feature_columns,
-            "embedding_size":self._embedding_size
+            "embedding_size":self._embedding_size,
+            "fea_size": len(second_feature_columns)
         }
 
         model = tf.estimator.Estimator(
