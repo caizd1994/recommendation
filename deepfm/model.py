@@ -59,7 +59,8 @@ class RecommendModelHandler(object):
             'is_bn': self.is_bn,
             'is_dropout': self.is_dropout,
             'dropout_rate': self.dropout_rate,
-            "hidden_units":self.hidden_units
+            "hidden_units":self.hidden_units,
+            "embedding_size":self._embedding_size
         }
         # model_fn = deepFM_.train_op()
         deepFM_ = deepFM()
