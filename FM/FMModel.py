@@ -14,16 +14,18 @@ class FM_model(object):
 
         #second_order
         second_order = tf.feature_column.input_layer(features=features, feature_columns=params['second_feature_columns'])
+        dim = len(params['second_feature_columns'])
+        second_order = tf.reshape(second_order,shape=[-1,dim,params['embedding_size']])
 
         #square-sum
         square_sum = tf.square(second_order)
-        square_sum = tf.reduce_sum(square_sum,axis= 1 , keepdims=True)
+        square_sum = tf.reduce_sum(square_sum,axis= 1)
 
         #sum_square
-        sum_square = tf.reduce_sum(second_order,axis=1,keepdims=True)
+        sum_square = tf.reduce_sum(second_order,axis=1)
         sum_square = tf.square(sum_square)
 
-        second_order = 0.5 * (sum_square - square_sum)
+        second_order = tf.reduce_sum(0.5 * (sum_square - square_sum),-1,keep_dims=True)
 
         logits = second_order + first_order + bias
         predicts = tf.nn.sigmoid(logits)

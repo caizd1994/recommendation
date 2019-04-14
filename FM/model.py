@@ -1,6 +1,7 @@
 from FM.FMModel import FM_model
 from common_utils.utils import *
 from FM.model_parms import init_model_args
+import os
 
 feature_list = ["uid", "city", "item_id", "author_id", "item_city"]
 bucket_size = [73974, 396, 4122689, 850308, 461]
@@ -37,15 +38,17 @@ class RecommendModelHandler(object):
     def build_model(self):
         """ build recommend model framework"""
         first_feature_columns, second_feature_columns = self.build_feature()
-
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
         config = tf.estimator.RunConfig().replace(
-            session_config=tf.ConfigProto(device_count={'CPU': self._num_threads}),
+            session_config=tf.ConfigProto(device_count={'CPU': self._num_threads,"GPU":1}),
             log_step_count_steps=20)
         params = {
             'learning_rate': self._learning_rate,
             'optimizer': self._optimizer,
             'first_feature_columns': first_feature_columns,
-            'second_feature_columns': second_feature_columns
+            'second_feature_columns': second_feature_columns,
+            "embedding_size":self._embedding_size
         }
 
         model = tf.estimator.Estimator(

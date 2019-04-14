@@ -14,12 +14,12 @@ def main():
 
     train_dataset_path_list = []
     val_dataset_path_list = []
-    for i in range(0, 20000000, 4000000):
-        path = "F:\\project\\recommendation\data\\train.tfrecords"
-        train_dataset_path_list.append(path)
-        val_dataset_path_list.append(path)
-    # train_dataset_path_list = [args.training_path]
-    # val_dataset_path_list = [args.validation_path]
+    # for i in range(0, 20000000, 4000000):
+    #     path = "D:\\Game\\recommendation\\data\\train.tfrecords"
+    #     train_dataset_path_list.append(path)
+    #     val_dataset_path_list.append(path
+    train_dataset_path_list = args.training_path
+    val_dataset_path_list = args.validation_path
 
     print("training path list: {}".format(train_dataset_path_list))
     print("training path list: {}".format(val_dataset_path_list))

@@ -16,8 +16,8 @@ def init_model_args():
 
   #necessary dir
   parser.add_argument('--save_model_dir', default='save_model')
-  parser.add_argument('--training_path', default="F:\\project\\recommendation\data\\train.tfrecords")
-  parser.add_argument('--validation_path', default="F:\\project\\recommendation\data\\train.tfrecords")
+  parser.add_argument('--training_path', default="D:\\Game\\recommendation\data\\train.tfrecords")
+  parser.add_argument('--validation_path', default="D:\\Game\\recommendation\\data\\train.tfrecords")
   parser.add_argument('--feature_dict', default=["uid", "city","item_id","author_id","item_city"])
 
   #task
