@@ -15,8 +15,7 @@ class deepFM(object):
         line_logits = tf.reduce_sum(line_emb,axis=1,keepdims=True)
 
         fm_emb = tf.feature_column.input_layer(features,parms['second_feature_columns'])
-        dim = len(parms['second_feature_columns'])
-        fm_emb = tf.reshape(fm_emb,shape=[-1,dim,parms['embedding_size']])
+        fm_emb = tf.reshape(fm_emb,shape=[-1,parms['fea_size'],parms['embedding_size']])
         #sum_squre
         sum_squre = tf.reduce_sum(fm_emb,axis=1,keepdims=True)
         sum_squre = tf.square(sum_squre)

@@ -47,7 +47,7 @@ class RecommendModelHandler(object):
 
         config = tf.estimator.RunConfig().replace(
             session_config=tf.ConfigProto(device_count={'CPU': self._num_threads}),
-            log_step_count_steps=20)
+            log_step_count_steps=100)
         params = {
             'learning_rate': self._learning_rate,
             'optimizer': self._optimizer,
@@ -86,7 +86,7 @@ class RecommendModelHandler(object):
         val_spec = tf.estimator.EvalSpec(input_fn=lambda: input_fn(filenames=parms.training_path
                                                                    ,num_epochs=parms.num_epochs
                                                                    ,batch_size=parms.batch_size*50
-                                                                   ,features_dict=feature_list), steps=1)
+                                                                   ,features_dict=feature_list), steps=10)
         tf.estimator.train_and_evaluate(model, train_spec, val_spec)
         # model.evaluate(input_fn=lambda: self.input_fn(data_mode='train'))
         # pred = model.predict(input_fn=lambda: self.input_fn(data_mode='val'))
